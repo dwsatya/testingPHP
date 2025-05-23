@@ -7,75 +7,48 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\Response;
 use Tests\TestCase;
 
-class FeatureCommentTest extends TestCase
+class FeatureLikeTest extends TestCase
 {
-    public function testStoreComment()
+    public function testStoreLike()
     {
         // 1. Cek halaman yang diakses
         $response = $this->get(route('dashboard'));
         $response->assertStatus(Response::HTTP_OK);
-        $response->assertSee('Write a comment');
+        $response->assertSee('Like an item');
 
-        // 2. User mengirim data komentar ke server
+        // 2. User memberikan "like" pada sebuah item
         $data = [
-            'content' => 'This is a test comment',
-            'item_id' => 1,
+            'item_id' => 2,
+            'user_id' => 1,
         ];
-        $storeData = $this->post(route('comment.store'), $data);
+        $storeData = $this->post(route('like.store'), $data);
 
-        // 3. Apakah data berhasil ditambahkan
+        // 3. Apakah "like" berhasil ditambahkan
         $storeData->assertStatus(Response::HTTP_FOUND);
-        $this->assertDatabaseHas('comments', [
-            'content' => 'This is a test comment',
-            'item_id' => 1,
+        $this->assertDatabaseHas('likes', [
+            'item_id' => 2,
+            'user_id' => 1,
         ]);
 
         // 4. Redirect ke halaman dashboard
         $storeData->assertRedirect(route('dashboard'));
     }
 
-    public function testStoreCommentWithTags()
+    public function testRemoveLike()
     {
         // 1. Cek halaman yang diakses
         $response = $this->get(route('dashboard'));
         $response->assertStatus(Response::HTTP_OK);
-        $response->assertSee('Write a comment');
+        $response->assertSee('Like an item');
 
-        // 2. User mengirim data komentar dengan tag ke server
-        $data = [
-            'content' => 'This comment has a tag|tag2',
-            'item_id' => 1,
-        ];
-        $storeData = $this->post(route('comment.store'), $data);
+        // 2. User menghapus "like" dari sebuah item
+        $storeData = $this->delete(route('like.destroy', ['item_id' => 2, 'user_id' => 1]));
 
-        // 3. Apakah data berhasil ditambahkan
+        // 3. Apakah "like" berhasil dihapus
         $storeData->assertStatus(Response::HTTP_FOUND);
-        $this->assertDatabaseHas('comments', [
-            'content' => 'This comment has a tag',
-            'item_id' => 1,
-        ]);
-        $this->assertDatabaseHas('tags', [
-            'tag_name' => 'tag2',
-        ]);
-
-        // 4. Redirect ke halaman dashboard
-        $storeData->assertRedirect(route('dashboard'));
-    }
-
-    public function testDeleteComment()
-    {
-        // 1. Cek halaman yang diakses
-        $response = $this->get(route('dashboard'));
-        $response->assertStatus(Response::HTTP_OK);
-        $response->assertSee('Write a comment');
-
-        // 2. User menghapus komentar tertentu
-        $storeData = $this->delete(route('comment.destroy', ['id' => 5]));
-
-        // 3. Apakah data berhasil dihapus
-        $storeData->assertStatus(Response::HTTP_FOUND);
-        $this->assertDatabaseMissing('comments', [
-            'id' => 5,
+        $this->assertDatabaseMissing('likes', [
+            'item_id' => 2,
+            'user_id' => 1,
         ]);
 
         // 4. Redirect ke halaman dashboard
