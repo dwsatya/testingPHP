@@ -2,47 +2,23 @@
 
 namespace Tests\Unit;
 
-use App\Helpers\DiscountHelper;
-use PHPUnit\Framework\Attributes\DataProvider;
+use App\Helpers\CalculatorHelper;
 use PHPUnit\Framework\TestCase;
 
-class DiscountHelperTest extends TestCase
+class CalculatorHelperTest extends TestCase
 {
-    public function testCalculateDiscount()
+    public function testMultiplyNegativeNumbers()
     {
-        $this->assertEquals(90, DiscountHelper::calculate(100, 10));
+        $this->assertEquals(20, CalculatorHelper::perkalian(-4, -5));
     }
 
-    public function testMultipleDiscountCalculations()
+    public function testSubtractResultNegative()
     {
-        $cases = [
-            [200, 20, 160],
-            [500, 50, 250],
-            [1000, 10, 900]
-        ];
-
-        foreach ($cases as [$price, $discount, $expected]) {
-            $this->assertEquals($expected, DiscountHelper::calculate($price, $discount));
-        }
+        $this->assertEquals(-2, CalculatorHelper::subtract(3, 5));
     }
 
-    public function testZeroDiscount()
+    public function testAddLargeNumbers()
     {
-        $this->assertEquals(100, DiscountHelper::calculate(100, 0));
-    }
-
-    #[DataProvider('discountProvider')]
-    public function testCalculateDiscountWithDataProvider($price, $discount, $expected)
-    {
-        $this->assertEquals($expected, DiscountHelper::calculate($price, $discount));
-    }
-
-    public static function discountProvider()
-    {
-        return [
-            [100, 10, 90],
-            [250, 25, 187.5],
-            [500, 15, 425],
-        ];
+        $this->assertEquals(1000000000, CalculatorHelper::add(500000000, 500000000));
     }
 }
